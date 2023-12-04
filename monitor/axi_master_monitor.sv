@@ -13,11 +13,8 @@ virtual axi_master_interface vif;
 axi_master_sequence_item req_op;
 
 //Declaring 5 analysis ports to put 5 channel signals to 5 different FIFOs in scoreboard
-uvm_analysis_port#(axi4_master_tx) axi4_master_read_address_analysis_port;
-uvm_analysis_port#(axi4_master_tx) axi4_master_read_data_analysis_port;
-uvm_analysis_port#(axi4_master_tx) axi4_master_write_address_analysis_port;
-uvm_analysis_port#(axi4_master_tx) axi4_master_write_data_analysis_port;
-uvm_analysis_port#(axi4_master_tx) axi4_master_write_response_analysis_port;
+uvm_analysis_port#(axi4_master_tx) axi4_master_write_analysis_port;
+uvm_analysis_port#(axi4_master_tx) axi4_master_read_analysis_port;
 
 //Different methods present in the class that are defined outside class using extern keyword
 extern function new(string name = "axi4_master_monitor_proxy", uvm_component parent = null);
@@ -25,11 +22,6 @@ extern virtual function void build_phase(uvm_phase phase);
 extern virtual function void connect_phase(uvm_phase phase);
 extern virtual function void end_of_elaboration_phase(uvm_phase phase);
 extern virtual task run_phase(uvm_phase phase);
-extern virtual task axi4_write_address();
-extern virtual task axi4_write_data();
-extern virtual task axi4_write_response();
-extern virtual task axi4_read_address();
-extern virtual task axi4_read_data();
 
 endclass : axi_master_monitor_
 
@@ -37,11 +29,8 @@ endclass : axi_master_monitor_
 //Function: class constructor
 function axi_master_monitor::new(string name = "axi_master_monitor", uvm_component parent = null);
   super.new(name, parent)
-  axi4_master_read_address_analysis_port   = new("axi4_master_read_address_analysis_port",this);
-  axi4_master_read_data_analysis_port      = new("axi4_master_read_data_analysis_port",this);
-  axi4_master_write_address_analysis_port  = new("axi4_master_write_address_analysis_port",this);
-  axi4_master_write_data_analysis_port     = new("axi4_master_write_data_analysis_port",this);
-  axi4_master_write_response_analysis_port = new("axi4_master_write_response_analysis_port",this);
+  axi4_master_read_analysis_port   = new("axi4_master_read_analysis_port",this);
+  axi4_master_write_analysis_port  = new("axi4_master_write_analysis_port",this);
 endfunction : new
 
 //Function: Build phase
@@ -60,7 +49,7 @@ endfunction : connect_phase
 //Task: run phase
 task axi_master_monitor::run_phase(uvm_phase phase);
   if(vif.aresetn) begin
-    fork 
+    fork  //to ensure both read and write signals are monitored parallely
       begin
         forever begin
           fork 
@@ -80,97 +69,75 @@ task axi_master_monitor::run_phase(uvm_phase phase);
               req_op.awprot  = vif.m_mp.m_cb.awprot;
             end
             begin
+              static int i;
               //Taking data of write data channel
+              forever begin
               do begin
                 @(posedge vif.m_mp.clk);
               end
                 while(wvalid != 1 && wready != 1);
-              req_op.wdata = vif.m_mp.m_cb.wdata;
-              req_op.wstrb = vif.m_mp.m_cb.wstrb;
-              req_op.wuser = vif.m_mp.m_cb.wuser;
-              req_op.wlast = vif.m_mp.m_cb.wlast;
+               req_op.wdata[i] = vif.m_mp.m_cb.wdata;
+               req_op.wstrb[i] = vif.m_mp.m_cb.wstrb;
+               req_op.wuser[i] = vif.m_mp.m_cb.wuser;
+               req_op.wlast = vif.m_mp.m_cb.wlast;
+                if(req_op.wlast == 1) begin
+                  i = 0;
+                  break;
+                end
+                  i++;
+              end
             end   
           join
+          begin
           //Taking data of write response channel
           do begin
             @(posedge vif.m_mp.clk);
+          end
+          while(bvalid != 1 && bready != 1);
+         req_op.bid      = bid;
+         req_op.bresp    = bresp;
+          end
+          axi4_master_write_analysis_port.write(req_op);
+        end
       end
-      while(wvalid != 1 && wready != 1);
-      req_op.wdata = vif.m_mp.m_cb.wdata;
-      req_op.wstrb = vif.m_mp.m_cb.wstrb;
-      req_op.wuser = vif.m_mp.m_cb.wuser;
-      req_op.wlast = vif.m_mp.m_cb.wlast;
-      end   
-      
-     
-      
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    
-  fork 
-    axi4_write_address();
-    axi4_write_data();
-    axi4_write_response();
-    axi4_read_address();
-    axi4_read_data();
-  join
-end
-endtask : run_phase
-
-//Task: axi4_write_address
-//Task to obtain write address channel signals
-task axi4_master_monitor::axi4_write_address();
-  forever begin
-    // Copy all write address channel signals to req_op
-    //using write address analysis port call write function to pass write address signals to scoreboard
-  end
-endtask
-
-//Task: axi4_write_data
-//Task to obtain write data channel signals
-task axi4_master_monitor::axi4_write_data();
-  forever begin
-    // Copy all write data channel signals to req_op
-    //using write data analysis port call write function to pass write data signals to scoreboard
-  end
-endtask
-
-//Task: axi4_write_response
-//Task to obtain write response channel signals
-task axi4_master_monitor::axi4_write_data();
-  forever begin
-    // Copy all write response channel signals to req_op
-    //using write response analysis port call write function to pass write response signals to scoreboard
-  end
-endtask
-
-//Task: axi4_read_address
-//Task to obtain read address channel signals
-task axi4_master_monitor::axi4_read_address();
-  forever begin
-    // Copy all read address channel signals to req_op
-    //using read address analysis port call write function to pass read address signals to scoreboard
+        begin
+          forever begin
+            //Taking data of read address channel
+              do begin
+                @(posedge vif.m_mp.clk);
+              end
+                while(awvalid != 1 && awready != 1);
+              req_op.rwid    = vif.m_mp.m_cb.rwid ;
+              req_op.rwaddr  = vif.m_mp.m_cb.rwaddr;
+              req_op.rwlen   = vif.m_mp.m_cb.rwlen;
+              req_op.rwsize  = vif.m_mp.m_cb.rwsize;
+              req_op.rwburst = vif.m_mp.m_cb.rwburst;
+              req_op.rwlock  = vif.m_mp.m_cb.rwlock;
+              req_op.rwcache = vif.m_mp.m_cb.rwcache;
+              req_op.rwprot  = vif.m_mp.m_cb.rwprot;
+        
+              static int j;
+              //Taking data of read data channel
+              forever begin
+              do begin
+                @(posedge vif.m_mp.clk);
+              end
+              while(rvalid != 1 && rready != 1);
+               req_op.rid = vif.m_mp.m_cb.rid;
+                req_op.rdata[j] = vif.m_mp.m_cb.rdata;
+               req_op.ruser = vif.m_mp.m_cb.ruser;
+               req_op.rresp = vif.m_mp.m_cb.rresp;
+               req_op.rlast = vif.m_mp.m_cb.rlast;
+                if(req_op.rlast == 1) begin
+                  j = 0;
+                  break;
+                end
+                  j++;
+              end
+          end
+        end
+    join
   end
 endtask
   
-//Task: axi4_read_data
-//Task to obtain read data channel signals
-task axi4_master_monitor::axi4_read_data();
-  forever begin
-    // Copy all read data channel signals to req_op
-    //using read data analysis port call write function to pass read data signals to scoreboard
-  end
-endtask
