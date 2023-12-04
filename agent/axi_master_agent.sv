@@ -71,7 +71,7 @@ endfunction : build_phase
 //------------------------------------------------------------------------//
 
 function void axi_master_agent::connect_phase(uvm_phase phase);
-  if (m_agt_cfg.is_active == UVM_ACTIVE) 
+  if(get_is_active() == UVM_ACTIVE) 
     m_drv.seq_item_port.connect(seqr.seq_item_export);
 endfunction : connect_phase
 
