@@ -55,7 +55,7 @@ function void axi_master_agent::build_phase(uvm_phase phase);
 
   //For Active UVM Agent monitor class is created along with the Sequencer and Driver but for the
 
-  if (m_agt_cfg.is_active == UVM_ACTIVE);
+  if(get_is_active() == UVM_ACTIVE)
   begin
     m_drv  = axi_master_driver::type_id::create("m_drv", this);
     m_seqr = axi_master_sequencer::type_id::create("m_seqr", this);
