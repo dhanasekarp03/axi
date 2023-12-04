@@ -45,7 +45,7 @@ function axi_master_monitor::new(string name = "axi_master_monitor", uvm_compone
 endfunction : new
 
 //Function: Build phase
-function void axi4_master_monitor_proxy::build_phase(uvm_phase phase);
+function void axi4_master_monitor::build_phase(uvm_phase phase);
   super.build_phase(phase);
   if(!uvm_config_db#(virtual axi_master_interface)::get(this, "", "vif", vif))a
       `uvm_fatal("Monitor: ", "No vif is found!")
@@ -53,13 +53,73 @@ function void axi4_master_monitor_proxy::build_phase(uvm_phase phase);
 endfunction : build_phase 
 
 //Function: connect phase
-function void axi4_master_monitor_proxy::connect_phase(uvm_phase phase);
+function void axi4_master_monitor::connect_phase(uvm_phase phase);
   super.connect_phase(phase);
 endfunction : connect_phase
 
 //Task: run phase
 task axi_master_monitor::run_phase(uvm_phase phase);
   if(vif.aresetn) begin
+    fork 
+      begin
+        forever begin
+          fork 
+            begin
+              //Taking data of write address channel
+              do begin
+                @(posedge vif.m_mp.clk);
+              end
+                while(awvalid != 1 && awready != 1);
+              req_op.awid    = vif.m_mp.m_cb.awid ;
+              req_op.awaddr  = vif.m_mp.m_cb.awaddr;
+              req_op.awlen   = vif.m_mp.m_cb.awlen;
+              req_op.awsize  = vif.m_mp.m_cb.awsize;
+              req_op.awburst =vif.m_mp.m_cb.vawburst;
+              req_op.awlock  = vif.m_mp.m_cb.awlock;
+              req_op.awcache = vif.m_mp.m_cb.awcache;
+              req_op.awprot  = vif.m_mp.m_cb.awprot;
+            end
+            begin
+              //Taking data of write data channel
+              do begin
+                @(posedge vif.m_mp.clk);
+              end
+                while(wvalid != 1 && wready != 1);
+              req_op.wdata = vif.m_mp.m_cb.wdata;
+              req_op.wstrb = vif.m_mp.m_cb.wstrb;
+              req_op.wuser = vif.m_mp.m_cb.wuser;
+              req_op.wlast = vif.m_mp.m_cb.wlast;
+            end   
+          join
+          //Taking data of write response channel
+          do begin
+            @(posedge vif.m_mp.clk);
+      end
+      while(wvalid != 1 && wready != 1);
+      req_op.wdata = vif.m_mp.m_cb.wdata;
+      req_op.wstrb = vif.m_mp.m_cb.wstrb;
+      req_op.wuser = vif.m_mp.m_cb.wuser;
+      req_op.wlast = vif.m_mp.m_cb.wlast;
+      end   
+      
+     
+      
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
   fork 
     axi4_write_address();
     axi4_write_data();
