@@ -135,6 +135,7 @@ task axi_master_monitor::run_phase(uvm_phase phase);
                 end
                   j++;
               end
+            axi4_master_read_analysis_port.write(req_op);
           end
         end
     join
