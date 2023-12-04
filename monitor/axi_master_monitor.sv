@@ -58,7 +58,7 @@ task axi_master_monitor::run_phase(uvm_phase phase);
               do begin
                 @(posedge vif.m_mp.clk);
               end
-                while(awvalid != 1 && awready != 1);
+              while(vif_m_mp.m_cb.awvalid != 1 && vif.m_mp.m_cb.awready != 1);
               req_op.awid    = vif.m_mp.m_cb.awid ;
               req_op.awaddr  = vif.m_mp.m_cb.awaddr;
               req_op.awlen   = vif.m_mp.m_cb.awlen;
@@ -75,7 +75,7 @@ task axi_master_monitor::run_phase(uvm_phase phase);
               do begin
                 @(posedge vif.m_mp.clk);
               end
-                while(wvalid != 1 && wready != 1);
+                while(vif.m_mp.m_cb.wvalid != 1 && vif.m_mp.m_cb.wready != 1);
                req_op.wdata[i] = vif.m_mp.m_cb.wdata;
                req_op.wstrb[i] = vif.m_mp.m_cb.wstrb;
                req_op.wuser[i] = vif.m_mp.m_cb.wuser;
@@ -93,7 +93,7 @@ task axi_master_monitor::run_phase(uvm_phase phase);
           do begin
             @(posedge vif.m_mp.clk);
           end
-          while(bvalid != 1 && bready != 1);
+          while(vif.m_mp.m_cb.bvalid != 1 && bready != 1);
          req_op.bid      = bid;
          req_op.bresp    = bresp;
           end
