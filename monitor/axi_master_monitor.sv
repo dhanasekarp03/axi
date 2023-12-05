@@ -97,7 +97,7 @@ task axi_master_monitor::run_phase(uvm_phase phase);
          req_op.bid      = bid;
          req_op.bresp    = bresp;
           end
-          axi4_master_write_analysis_port.write(req_op);
+         
         end
       end
 
@@ -135,10 +135,12 @@ task axi_master_monitor::run_phase(uvm_phase phase);
                 end
                   j++;
               end
-            axi4_master_read_analysis_port.write(req_op);
+            
           end
         end
-    join
+    join_any
+     axi4_master_analysis_port.write(req_op);
+    wait fork;
   end
 endtask
   
