@@ -1,6 +1,6 @@
 
 
-class axi_master_write_read_test extends apb_base_test;
+class axi_master_write_read_test extends axi_base_test;
   `uvm_component_utils(axi_master_write_read_test)
 
   // instantiation of the handle 
