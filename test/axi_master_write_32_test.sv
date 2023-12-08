@@ -38,6 +38,4 @@ task axi_master_write_32b_test::run_phase(uvm_phase phase);
 
 endtask : run_phase
 
-`endif
-
 endclass : axi_master_write_32b_test
