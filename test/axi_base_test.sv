@@ -68,7 +68,6 @@ task axi4_base_test::run_phase(uvm_phase phase);
 
 endtask : run_phase
 
-`endif
 
 endclass : axi4_base_test
 
