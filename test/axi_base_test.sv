@@ -42,6 +42,12 @@ function void axi4_base_test::build_phase(uvm_phase phase);
   axi4_env_h = axi4_env::type_id::create("axi4_env_h",this);
 endfunction : build_phase
 
+
+   //function for end of elaboration phase
+   function void axi4_base_test::end_of_elaboration_phase(uvm_phase phase);
+  uvm_top.print_topology();
+  uvm_test_done.set_drain_time(this,3000ns);
+endfunction : end_of_elaboration_phase
 //--------------------------------------------------------------------------------------------
 // Task: run_phase
 // Used for giving basic delay for simulation 
