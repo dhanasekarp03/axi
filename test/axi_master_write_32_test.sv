@@ -2,7 +2,7 @@
 // Class: axi_master_write_32b_test
 //  Extends the base test and starts the sequence of 32 bit write
 //--------------------------------------------------------------------------------------------
-class axi_master_write_32b_test extends apb_base_test;
+class axi_master_write_32b_test extends axi_base_test;
   `uvm_component_utils(axi_master_write_32b_test)
   
   //Variable: axi_master_write_32b_transfer_h
