@@ -2,7 +2,7 @@
 // Class: axi_master_read_16b_test
 //  Extends the base test and starts the sequence of 16 bit read
 //--------------------------------------------------------------------------------------------
-class axi_master_read_16b_test extends apb_base_test;
+class axi_master_read_16b_test extends axi_base_test;
   `uvm_component_utils(axi_master_read_16b_test)
   
   //Variable: axi_master_read_16b_transfer_h
