@@ -23,7 +23,7 @@ class axi_base_test extends uvm_test;
 //  parent - parent under which this component is created
 //--------------------------------------------------------------------------------------------
 
-function axi_base_test::new(string name = "axi4_base_test",uvm_component parent = null);
+function axi_base_test::new(string name = "axi_base_test",uvm_component parent = null);
   super.new(name, parent);
 endfunction : new
 
@@ -39,7 +39,7 @@ function void axi_base_test::build_phase(uvm_phase phase);
   super.build_phase(phase);
   
   // Create the environment
-  axi_env_h = axi4_env::type_id::create("axi4_env_h",this);
+  axi_env_h = axi_env::type_id::create("axi_env_h",this);
 endfunction : build_phase
 
 //--------------------------------------------------------------------------------------------
