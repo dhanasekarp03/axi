@@ -12,7 +12,7 @@ class axi_base_test extends uvm_test;
 
   // Variable: axi_env_h
   // Handle for environment 
-  axi_env axi4_env_h;
+  axi_env axi_env_h;
 
 //--------------------------------------------------------------------------------------------
 // Construct: new
