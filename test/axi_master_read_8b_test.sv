@@ -2,7 +2,7 @@
 // Class: axi_master_read_8b_test
 //  Extends the base test and starts the sequence of 8 bit read
 //--------------------------------------------------------------------------------------------
-class axi_master_read_8b_test extends apb_base_test;
+class axi_master_read_8b_test extends axi_base_test;
   `uvm_component_utils(axi_master_read_8b_test)
   
   //Variable: axi_master_read_8b_transfer_h
